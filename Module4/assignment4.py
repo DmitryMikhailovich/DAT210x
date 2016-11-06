@@ -1,8 +1,10 @@
+#%%
 import pandas as pd
 import numpy as np
 import scipy.io
 import random, math
-
+from sklearn.decomposition import PCA
+from sklearn.manifold import Isomap
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
@@ -28,6 +30,7 @@ def Plot2D(T, title, x, y, num_to_plot=40):
 
 
 
+#%%
 # A .MAT file is a .MATLAB file. The faces dataset could have came
 # in through .png images, but we'll show you how to do that in
 # anither lab. For now, you'll see how to import .mats:
@@ -41,7 +44,7 @@ for i in range(num_images):
   df.loc[i,:] = df.loc[i,:].reshape(num_pixels, num_pixels).T.reshape(-1)
 
 
-#
+#%%
 # TODO: Implement PCA here. Reduce the dataframe df down
 # to THREE components. Once you've done that, call Plot2D.
 #
@@ -51,22 +54,31 @@ for i in range(num_images):
 # x is the principal component you want displayed on the x-axis, Can be 0 or 1
 # y is the principal component you want displayed on the y-axis, Can be 1 or 2
 #
-# .. your code here ..
+pca = PCA(n_components=3)
+T = pca.fit_transform(df)
+Plot2D(T, 'PCA', 0, 1)
+Plot2D(T, 'PCA', 1, 2)
 
 
-#
+
+#%%
 # TODO: Implement Isomap here. Reduce the dataframe df down
 # to THREE components. Once you've done that, call Plot2D using
 # the first two components.
 #
-# .. your code here ..
-
-
-#
+iso = Isomap(n_components=3)
+T_iso = iso.fit_transform(df)
+Plot2D(T_iso, 'Isomap', 0, 1)
+Plot2D(T_iso, 'Isomap', 1, 2)
+#%%
 # TODO: If you're up for a challenge, draw your dataframes in 3D
 # Even if you're not, just do it anyway.
 #
-# .. your code here ..
+
+
+ax = plt.subplot(111, projection='3d')
+ax.scatter(T_iso[:, 0], T_iso[:, 1], T_iso[:, 2])
+
 
 
 plt.show()

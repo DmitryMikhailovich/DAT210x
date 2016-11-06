@@ -1,10 +1,17 @@
+import pandas as pd
+import numpy as np
+from sklearn.cross_validation import train_test_split
+from sklearn.manifold import Isomap
+from sklearn.decomposition import RandomizedPCA
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn import preprocessing
 # If you'd like to try this lab with PCA instead of Isomap,
 # as the dimensionality reduction technique:
-Test_PCA = True
+Test_PCA = False
 
 
 def plotDecisionBoundary(model, X, y):
-  print "Plotting..."
+  print("Plotting...")
   import matplotlib.pyplot as plt
   import matplotlib
   matplotlib.style.use('ggplot') # Look Pretty
@@ -50,6 +57,7 @@ def plotDecisionBoundary(model, X, y):
 
   p = model.get_params()
   plt.title('K = ' + str(p['n_neighbors']))
+  plt.legend(loc='best')
   plt.show()
 
 
@@ -57,7 +65,11 @@ def plotDecisionBoundary(model, X, y):
 # TODO: Load in the dataset, identify nans, and set proper headers.
 # Be sure to verify the rows line up by looking at the file in a text editor.
 #
-# .. your code here ..
+df = pd.read_csv('./Datasets/breast-cancer-wisconsin.data', header=None,  
+                 names=['sample', 
+'thickness', 'size', 'shape', 'adhesion', 
+'epithelial', 'nuclei', 'chromatin', 'nucleoli', 'mitoses', 'status'], 
+na_values=['?'])
 
 
 
@@ -66,7 +78,8 @@ def plotDecisionBoundary(model, X, y):
 # dataframe. You can also drop the sample column, since that doesn't provide
 # us with any machine learning power.
 #
-# .. your code here ..
+y = df['status']
+df.drop(['sample', 'status'], inplace=True, axis=1)
 
 
 
@@ -74,7 +87,7 @@ def plotDecisionBoundary(model, X, y):
 # TODO: With the labels safely extracted from the dataset, replace any nan values
 # with the mean feature / column value
 #
-# .. your code here ..
+df = df.fillna(df.mean(axis=0))
 
 
 
@@ -83,7 +96,7 @@ def plotDecisionBoundary(model, X, y):
 # the reading material, but set the random_state=7 for reproduceability, and keep
 # the test_size at 0.5 (50%).
 #
-# .. your code here ..
+X_train, X_test, y_train, y_test = train_test_split(df, y, test_size=.5, random_state=7)
 
 
 
@@ -94,32 +107,37 @@ def plotDecisionBoundary(model, X, y):
 # reasonable to assume feature scaling is necessary. Print out a description
 # of the dataset, post transformation.
 #
-# .. your code here ..
+scaler = None
+#scaler = preprocessing.RobustScaler()
+#scaler = preprocessing.Normalizer()
+#scaler = preprocessing.MinMaxScaler()
 
-
-
+#scaler.fit(X_train)
+#X_train_s = scaler.transform(X_train)
+#X_test_s = scaler.transform(X_test)
+X_train_s = X_train
+X_test_s = X_test
 
 #
 # PCA and Isomap are your new best friends
 model = None
 if Test_PCA:
-  print "Computing 2D Principle Components"
+  print("Computing 2D Principle Components")
   #
   # TODO: Implement PCA here. save your model into the variable 'model'.
   # You should reduce down to two dimensions.
   #
-  # .. your code here ..
-
+  model = RandomizedPCA(n_components=2)
   
 
 else:
-  print "Computing 2D Isomap Manifold"
+  print("Computing 2D Isomap Manifold")
   #
   # TODO: Implement Isomap here. save your model into the variable 'model'
   # Experiment with K values from 5-10.
   # You should reduce down to two dimensions.
   #
-  # .. your code here ..
+  model = Isomap(n_components=2, n_neighbors=5)
   
 
 
@@ -129,7 +147,8 @@ else:
 # data_train and data_test using your model. You can save the results right
 # back into the variables themselves.
 #
-# .. your code here ..
+X_train_s = model.fit_transform(X_train_s)
+X_test_s = model.transform(X_test_s)
 
 
 
@@ -141,8 +160,10 @@ else:
 # general (high-K). You should also experiment with how changing the weights
 # parameter affects the results.
 #
-# .. your code here ..
-
+scores = []
+for n in range(1, 16):
+    knn = KNeighborsClassifier(n_neighbors=n, weights='uniform')
+    knn.fit(X_train_s, y_train)
 
 
 #
@@ -159,8 +180,10 @@ else:
 
 #
 # TODO: Calculate + Print the accuracy of the testing set
-#
-# .. your code here ..
+#   
+    score = knn.score(X_test_s, y_test)
+    print('Score of KNN with K=', n, ' is ', score)
+    scores.append(score)
 
-
-plotDecisionBoundary(knmodel, X_test, y_test)
+    plotDecisionBoundary(knn, X_test_s, y_test)
+print('Average score is', np.array(scores).mean())

@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 import datetime
-
+from sklearn.decomposition import PCA, RandomizedPCA
 from mpl_toolkits.mplot3d import Axes3D
 from plyfile import PlyData, PlyElement
 
@@ -40,8 +40,9 @@ def do_PCA(armadillo):
   # you automatically. =)
   #
   # .. your code here ..
-
-  return None
+  pca = PCA(n_components=2)
+  
+  return pca.fit_transform(armadillo)
 
 
 def do_RandomizedPCA(armadillo):
@@ -59,7 +60,8 @@ def do_RandomizedPCA(armadillo):
   #
   # .. your code here ..
 
-  return None
+  pca = RandomizedPCA(n_components=2)
+  return pca.fit_transform(armadillo)
 
 
 

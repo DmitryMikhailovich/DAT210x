@@ -11,34 +11,37 @@ import pandas as pd
 def load(path_test, path_train):
   # Load up the data.
   # You probably could have written this..
-  with open(path_test, 'r')  as f: testing  = pd.read_csv(f)
-  with open(path_train, 'r') as f: training = pd.read_csv(f)
+  import math
+  with open(path_test, 'r')  as f: testing  = pd.read_csv(f, header=None)
+  with open(path_train, 'r') as f: training = pd.read_csv(f, header=None)
 
   # The number of samples between training and testing can vary
   # But the number of features better remain the same!
   n_features = testing.shape[1]
 
-  X_test  = testing.ix[:,:n_features-1]
-  X_train = training.ix[:,:n_features-1]
-  y_test  = testing.ix[:,n_features-1:].values.ravel()
-  y_train = training.ix[:,n_features-1:].values.ravel()
+  X_test  = testing.iloc[:,:n_features-1]
+  X_train = training.iloc[:,:n_features-1]
+  y_test  = testing.iloc[:,n_features-1:].values.ravel()
+  y_train = training.iloc[:,n_features-1:].values.ravel()
 
   #
   # Special:
-
+  n_train_samples = int(math.ceil(len(X_test) * .04))
+  X_train = X_train.iloc[:n_train_samples, :]
+  y_train = y_train[:n_train_samples]
   return X_train, X_test, y_train, y_test
 
 
-def peekData(X_train):
+def peekData(X):
   # The 'targets' or labels are stored in y. The 'samples' or data is stored in X
-  print "Peeking your data..."
+  print("Peeking your data...")
   fig = plt.figure()
 
   cnt = 0
   for col in range(5):
     for row in range(10):
       plt.subplot(5, 10, cnt + 1)
-      plt.imshow(X_train.ix[cnt,:].reshape(8,8), cmap=plt.cm.gray_r, interpolation='nearest')
+      plt.imshow(X.ix[cnt, :].reshape(8,8), cmap=plt.cm.gray_r, interpolation='nearest')
       plt.axis('off')
       cnt += 1
   fig.set_tight_layout(True)
@@ -81,7 +84,7 @@ def drawPredictions(X_train, X_test, y_train, y_test):
 
 #
 # TODO: Pass in the file paths to the .tes and the .tra files
-X_train, X_test, y_train, y_test = load('', '')
+X_train, X_test, y_train, y_test = load('./Datasets/optdigits.tes', './Datasets/optdigits.tra')
 
 import matplotlib.pyplot as plt
 from sklearn import svm
@@ -97,18 +100,19 @@ peekData(X_train)
 # TODO: Create an SVC classifier. Leave C=1, but set gamma to 0.001
 # and set the kernel to linear. Then train the model on the training
 # data / labels:
-print "Training SVC Classifier..."
+print("Training SVC Classifier...")
 #
-# .. your code here ..
+model = svm.SVC(C=1, gamma=.001, kernel='rbf')
+model.fit(X_train, y_train)
 
 
 
 
 # TODO: Calculate the score of your SVC against the testing data
-print "Scoring SVC Classifier..."
+print("Scoring SVC Classifier...")
 #
-# .. your code here ..
-print "Score:\n", score
+score = model.score(X_test, y_test)
+print("Score:\n", score)
 
 
 # Visual Confirmation of accuracy
@@ -119,8 +123,8 @@ drawPredictions(X_train, X_test, y_train, y_test)
 # TODO: Print out the TRUE value of the 1000th digit in the test set
 # By TRUE value, we mean, the actual provided label for that sample
 #
-# .. your code here ..
-print "1000th test label: ", true_1000th_test_value)
+true_1000th_test_value = y_test[1000]
+print("1000th test label: ", true_1000th_test_value)
 
 
 #
@@ -129,15 +133,19 @@ print "1000th test label: ", true_1000th_test_value)
 # INFO: If you get a warning on your predict line, look at the
 # notes from the previous module's labs.
 #
-# .. your code here ..
-print "1000th test prediction: ", guess_1000th_test_value
+guess_1000th_test_value = model.predict(X_test.ix[1000, :].reshape(1, -1))
+print("1000th test prediction: ", guess_1000th_test_value)
 
 
 #
 # TODO: Use IMSHOW to display the 1000th test image, so you can
 # visually check if it was a hard image, or an easy image
 #
-# .. your code here ..
+plt.subplot(111)
+plt.imshow(X_test.ix[1000, :].reshape(8, 8), interpolation='nearest', cmap=plt.cm.gray_r)
+plt.title('True value is {}'.format(true_1000th_test_value))
+plt.axis('off')
+plt.show()
 
 
 #

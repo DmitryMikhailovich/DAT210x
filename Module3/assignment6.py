@@ -2,29 +2,29 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-#
+#%%
 # TODO: Load up the Seeds Dataset into a Dataframe
 # It's located at 'Datasets/wheat.data'
 # 
-# .. your code here ..
+df = pd.read_csv('./Datasets/wheat.data')
 
 
-#
+# %%
 # TODO: Drop the 'id' feature
 # 
-# .. your code here ..
+df.drop(labels='id', axis=1, inplace=True)
 
 
-#
-# TODO: Compute the correlation matrix of your dataframe
-# 
-# .. your code here ..
+#%%
+corr_mat = df.corr()
 
 
-#
-# TODO: Graph the correlation matrix using imshow or matshow
-# 
-# .. your code here ..
+#%%
+plt.imshow(corr_mat)
+cols = list(df.columns)
+plt.xticks(range(len(cols)), cols)
+plt.yticks(range(len(cols)), cols)
+plt.colorbar()
 
 
 plt.show()

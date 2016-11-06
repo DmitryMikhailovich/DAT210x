@@ -2,15 +2,18 @@ import pandas as pd
 import numpy as np
 
 
-#
+#%%
 # TODO:
 # Load up the dataset, setting correct header labels.
 #
-# .. your code here ..
+df = pd.read_csv('./Datasets/census.data', header=None, 
+                 names=['education', 'age', 'capital-gain', 'race', 
+                 'capital-loss', 'hours-per-week', 'sex', 'classification'],
+                 na_values=['?'])
 
 
 
-#
+#%%
 # TODO:
 # Use basic pandas commands to look through the dataset... get a
 # feel for it before proceeding! Do the data-types of each column
@@ -23,11 +26,12 @@ import numpy as np
 # should be represented as nans, you can convert them using
 # na_values when loading the dataframe.
 #
-# .. your code here ..
+print(df)
+print(df.dtypes)
 
 
 
-#
+#%%
 # TODO:
 # Look through your data and identify any potential categorical
 # features. Ensure you properly encode any ordinal and nominal
@@ -38,14 +42,33 @@ import numpy as np
 # make more sense to have a numeric type or a series of categories
 # for these somewhat ambigious features?
 #
-# .. your code here ..
+df = pd.get_dummies(df, columns=['race'])
+df = pd.get_dummies(df, columns=['sex'], drop_first=True)
+df['classification'] = df['classification'].astype('category', 
+                                            ordered=True,
+                                            categories=['<=50K', '>50K'])
+df['edication'] = df['education'].astype('category',
+                                        ordered=True,
+                                        categories=['Preschool',
+                                                    '1st-4th',
+                                                    '5th-6th',
+                                                    '7th-8th',
+                                                    '9th',
+                                                    '10th',
+                                                    '11th',
+                                                    '12th',
+                                                    'HS-grad',
+                                                    'Some-college',
+                                                    'Bachelors',
+                                                    'Masters',
+                                                    'Doctorate'])
 
 
 
-#
+# %%
 # TODO:
 # Print out your dataframe
 #
-# .. your code here ..
+print(df)
 
 

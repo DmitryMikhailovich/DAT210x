@@ -1,6 +1,8 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-
+from sklearn.cross_validation import train_test_split
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 import pandas as pd
 import numpy as np 
 import time
@@ -10,8 +12,8 @@ import time
 # INFO: Your Parameters.
 # You can adjust them after completing the lab
 C = 1
-kernel = 'linear'
-iterations = 5000   # TODO: Change to 200000 once you get to Question#2
+kernel = 'rbf'
+iterations = 1   # TODO: Change to 200000 once you get to Question#2
 
 #
 # INFO: You can set this to false if you want to
@@ -87,29 +89,29 @@ def drawPlots(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 
       cnt += 1
 
-  print "Max 2D Score: ", max_2d_score
+  print("Max 2D Score: ", max_2d_score)
   fig.set_tight_layout(True)
 
 
 def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
-  print '\n\n' + wintitle + ' Results'
-  s = time.time()
-  for i in range(iterations):
+    print('\n\n' + wintitle + ' Results')
+    s = time.time()
+    for i in range(iterations):
     #
     # TODO: train the classifier on the training data / labels:
     #
-    # .. your code here ..
-  print "{0} Iterations Training Time: ".format(iterations), time.time() - s
-
-
-  s = time.time()
-  for i in range(iterations):
+        model.fit(X_train, y_train)
+    print("{0} Iterations Training Time: ".format(iterations), time.time() - s)
+    
+    
+    s = time.time()
+    for i in range(iterations):
     #
     # TODO: score the classifier on the testing data / labels:
     #
-    # .. your code here ..
-  print "{0} Iterations Scoring Time: ".format(iterations), time.time() - s
-  print "High-Dimensionality Score: ", round((score*100), 3)
+        score = model.score(X_test, y_test)
+    print("{0} Iterations Scoring Time: ".format(iterations), time.time() - s)
+    print("High-Dimensionality Score: ", round((score*100), 3))
 
 
 
@@ -118,7 +120,7 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # Verify you did it properly.
 # Indices shouldn't be doubled, nor weird headers...
 #
-# .. your code here ..
+X = pd.read_csv('./Datasets/wheat.data', index_col=0)
 
 
 # INFO: An easy way to show which rows have nans in them
@@ -128,7 +130,7 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # 
 # TODO: Go ahead and drop any row with a nan
 #
-# .. your code here ..
+X.dropna(inplace=True)
 
 
 
@@ -145,7 +147,9 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # them from X. Encode the labels, using the .map() trick we showed
 # you in Module 5 -- canadian:0, kama:1, and rosa:2
 #
-# .. your code here ..
+y = X['wheat_type']
+y = y.map({'canadian':0, 'kama':1, 'rosa':2})
+X.drop('wheat_type', axis=1, inplace=True)
 
 
 
@@ -154,7 +158,7 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # Your test size can be 30% with random_state 7.
 # Use variable names: X_train, X_test, y_train, y_test
 #
-# .. your code here ..
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3, random_state=7)
 
 
 
@@ -162,14 +166,14 @@ def benchmark(model, X_train, X_test, y_train, y_test, wintitle='Figure 1'):
 # TODO: Create an SVC classifier named svc
 # Use a linear kernel, and set the C value to C
 #
-# .. your code here ..
+svc = SVC(C=C, kernel=kernel, gamma=1)
 
 
 #
 # TODO: Create an KNeighbors classifier named knn
 # Set the neighbor count to 5
 #
-# .. your code here ..
+knn = KNeighborsClassifier(n_neighbors=5)
 
 
 
